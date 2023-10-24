@@ -84,7 +84,7 @@ namespace HyperConnect
                     _spawnedEntities[i, j] = entity;
                 }
             }
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSeconds(.15f);
             foreach (Edge edge in edgeData)
             {
                 TileEntity startEntity = _spawnedEntities[edge.start.x, edge.start.y];
