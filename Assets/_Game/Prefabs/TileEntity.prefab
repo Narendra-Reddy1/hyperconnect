@@ -35,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 4.9}
+  m_AnchoredPosition: {x: 0, y: 4.9000244}
   m_SizeDelta: {x: -33.7208, y: -33.7208}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5803863838346857578
@@ -161,6 +161,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7916282628799740812}
+  - component: {fileID: 680231106077860635}
+  - component: {fileID: 4614538880831181741}
   m_Layer: 5
   m_Name: TileEntity
   m_TagString: Untagged
@@ -190,3 +192,32 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &680231106077860635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7996829628228205027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb110979267a2c48b98b86fe1caaf0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _myNeighbours: []
+  _spriteDatabase: {fileID: 11400000, guid: dfe97eee12197fc439e499d43ce2b262, type: 2}
+  _canvasGroup: {fileID: 4614538880831181741}
+  _fruitImg: {fileID: 5488891210353680679}
+  _isOccupied: 0
+--- !u!225 &4614538880831181741
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7996829628228205027}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
