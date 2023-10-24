@@ -132,8 +132,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 29337187}
-  - component: {fileID: 29337190}
-  - component: {fileID: 29337189}
   - component: {fileID: 29337188}
   m_Layer: 5
   m_Name: Board
@@ -186,44 +184,6 @@ MonoBehaviour:
   m_Spacing: {x: 75, y: 100}
   m_Constraint: 1
   m_ConstraintCount: 5
---- !u!114 &29337189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 29337186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &29337190
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 29337186}
-  m_CullTransparentMesh: 1
 --- !u!1 &50088911
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,7 +594,7 @@ GameObject:
   - component: {fileID: 460156427}
   m_Layer: 5
   m_Name: Linerenderers
-  m_TagString: Untagged
+  m_TagString: LinesParent
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1341,6 +1301,10 @@ PrefabInstance:
       propertyPath: _lineRendrersParents
       value: 
       objectReference: {fileID: 460156427}
+    - target: {fileID: 4262187324246579625, guid: 36eda212a3f956f45b4a0904e9eca91b, type: 3}
+      propertyPath: edgeDataDict._serializedList.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8670423281708315159, guid: 36eda212a3f956f45b4a0904e9eca91b, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

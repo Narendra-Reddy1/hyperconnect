@@ -107,3 +107,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _lineRenderer: {fileID: 5856676901037256750}
+  _canvasGroup: {fileID: 2090712377909102522}
