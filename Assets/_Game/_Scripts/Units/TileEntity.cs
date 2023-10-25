@@ -1,6 +1,4 @@
-using AYellowpaper.SerializedCollections;
 using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,12 +6,19 @@ using UnityEngine.UI;
 
 namespace HyperConnect
 {
+    /// <summary>
+    /// This is basic unit of the game.<br></br>
+    /// This handles the Tile entity behaviour.<br></br>
+    /// Taking Tile Click Inputs from the player.<br></br>
+    /// Like Moving tile to the designated position<br></br>
+    /// Animating tile<br></br>
+    /// Fading the tile
+    /// </summary>
     public class TileEntity : MonoBehaviour, IPointerClickHandler
     {
         #region Variables
         public TileEntity parent;
 
-        //[SerializeField] SerializedDictionary<Direction, TileEntity> _myNeighbours;
         [SerializeField] private List<TileEntity> _myNeighbours = new List<TileEntity>();
         [SerializeField] private SpriteDatabase _spriteDatabase;
         [SerializeField] private CanvasGroup _canvasGroup;
@@ -22,7 +27,6 @@ namespace HyperConnect
         [SerializeField] private LinerendererHandler _lineHandler;
         [SerializeField] private bool _isOccupied;
 
-        // private List<LinerendererHandler> _linesWithNeighboursList = new List<LinerendererHandler>();
         private bool _isSelected;
         private int _id;
         private int _row;
@@ -63,6 +67,7 @@ namespace HyperConnect
             _isOccupied = false;
             // _linesWithNeighboursList.ForEach(x => x.FadeLineRenderer());
         }
+
         public void FadeTile(bool hide = true)
         {
             if (hide)
@@ -85,11 +90,7 @@ namespace HyperConnect
             if (!_myNeighbours.Contains(entity))
                 _myNeighbours.Add(entity);
         }
-        //public void RecordNeighbourLines(TileEntity entity, LinerendererHandler neighbourLine)
-        //{
-        //    neighbourLine.Init(transform.localPosition, entity.transform.localPosition);
-        //    _linesWithNeighboursList.Add(neighbourLine);
-        //}
+
         public bool IsLeafNode()
         {
             return _myNeighbours.Count == 1;

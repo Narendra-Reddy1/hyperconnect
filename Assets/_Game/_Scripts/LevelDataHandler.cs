@@ -2,14 +2,41 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+
+///Based on my observation in the HyperConnect game
+///None of the levels have closed path with any tiles (which concludes there would be ony one way to reach any tile.)
+///With that conclusion I've created this data set with IndexData and Edge data without any closed paths.
 public static class LevelDataHandler
 {
-    ///11X5 grid
-    private static List<LevelData> levelData = new List<LevelData>
+
+    ///8X5 grid
+    ///
+
+
+    ///LevelData is the dataHolder the each level in this game
+    ///This has 3 parts
+    /// (1)Level Index
+    /// 
+    /// 
+    /// (2)Tiles Index Data[2D Array]
+    /////This index data is used to sapwn the tiles image in the game.
+    ///// -1 represents the invisible tile.
+    /////any other value represents the index the tile. and this INDEX is mapped to SpriteDataBase ScriptableObject.
+    /////Spritedatabase scriptable object has a list of the sprites of the tile images.
+    /////this INDEX is used as ID to perform match operation.
+    ///
+    /// 
+    /// (3)Edges Data-->This has the data which tile is neighbour to which tile.
+    ///// Edge data is Index(ixj) of the 2D Array-->IndexData
+    /////Edge Data provide the relationship between tiles.
+    /////This data is used to conclude neighbours of the particular tile.
+    /////and those neighbours are used to find the path.
+
+    private static readonly List<LevelData> levelData = new List<LevelData>
     {
 
          new LevelData(1 ,
-            new int[8,5]
+            new int[8,5] 
             {
                 {-1,-1,5,-1,-1 },//0
                 {-1,0,1,3,5 },//1

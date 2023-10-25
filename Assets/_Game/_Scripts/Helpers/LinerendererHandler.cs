@@ -1,9 +1,11 @@
 using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
 
+/// <summary>
+/// Helper script for Line renderer.
+/// </summary>
 public class LinerendererHandler : MonoBehaviour
 {
     #region Varibales

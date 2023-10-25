@@ -1,10 +1,8 @@
-using AYellowpaper.SerializedCollections;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI.Extensions;
 
 namespace HyperConnect
 {
@@ -13,17 +11,8 @@ namespace HyperConnect
         #region Varibales
 
         //Debug purpose...
-        public UILineRenderer linerenderer;
-        public class Pair
-        {
-            public Vector2Int firstTile;
-            public Vector2Int secondTile;
-            public Pair(Vector2Int first, Vector2Int second)
-            {
-                firstTile = first;
-                secondTile = second;
-            }
-        }
+        //public UILineRenderer linerenderer;
+    
         [Header("Prefab References")]
         [Space(2)]
         [SerializeField] private TileEntity _tileEntityPrefab;
@@ -86,6 +75,11 @@ namespace HyperConnect
         #endregion Public Methods
 
         #region Private Methods
+        /// <summary>
+        /// This method loads the new level.<br></br>
+        /// It is responsible for spawning tiles, drawing lines, caching path between same tiles.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator _InitLevel()
         {
             _fadeBgCanvasGroup.gameObject.SetActive(true);
@@ -157,7 +151,10 @@ namespace HyperConnect
                 _fadeBgCanvasGroup.gameObject.SetActive(false);
             };
         }
-
+        /// <summary>
+        /// This will clear entire board of the level.
+        /// Destroys all tiles and line renderers
+        /// </summary>
         private void _ClearEntireBoard()
         {
             for (int i = 0, count = _boardTransform.childCount; i < count; i++)
@@ -172,18 +169,13 @@ namespace HyperConnect
             _selectedTileStack.Clear();
             _pairPathDict.Clear();
         }
-        // private List<TileEntity> _drawnLineEntities = new List<TileEntity>();
-        //private void _DrawNeighbourLines(TileEntity ownerEntity, TileEntity neighbourEntity)
-        //{
-        //    LinerendererHandler line = Instantiate(_lineRenderer, _lineRendrersParents);
-        //    _neighbourLinesDict.Add(new Pair(ownerEntity.RowColumn, neighbourEntity.RowColumn), line);
-        //    //if (_drawnLineEntities.Contains(ownerEntity) && _drawnLineEntities.Contains(neighbourEntity)) return;
-        //    //if (!_drawnLineEntities.Contains(ownerEntity))
-        //    //    _drawnLineEntities.Add(ownerEntity);
-        //    //if (!_drawnLineEntities.Contains(neighbourEntity))
-        //    //    _drawnLineEntities.Add(neighbourEntity);
-        //    //ownerEntity.RecordNeighbourLines(neighbourEntity, line);
-        //}
+
+        /// <summary>
+        /// This method enquires the path between the selected two entites is valied or not.<br></br>
+        /// If the path is valied invokes Matching logic.<br></br>
+        /// else<br></br>
+        /// Invokes Can't Match animation logic
+        /// </summary>
         private void _CheckForMatch()
         {
             MyUtils.Log($"Check For match...");
@@ -217,6 +209,12 @@ namespace HyperConnect
             else
                 _LoopForDestinationEntity(start, start, end);
         }
+        /// <summary>
+        /// This method handles the visual representation of the tiles matching.<br></br>
+        /// It is responsible for changing color path.<br></br>
+        /// Moving the matched tiles to the middle.<br></br>
+        /// Making the tiles and the unnecessary path fading out.
+        /// </summary>
         private void _ShowMatchEffect()
         {
             int count = _pathTrackList.Count;
@@ -255,6 +253,11 @@ namespace HyperConnect
                  _FadeOutPath(path);
              });
         }
+        /// <summary>
+        /// This method will check for any occupied tiles are there in the board.
+        /// If there are no tiles are occupied then level completed logic will run.<br></br>
+        /// It will fade the screen-->clears board-->Starts next new level.
+        /// </summary>
         private void _CheckForLevelComplete()
         {
             if (!_spawnedEntityList.Any(x => x.IsOccupied))
@@ -285,6 +288,13 @@ namespace HyperConnect
             foreach (LinerendererHandler line in path)
                 line.FadeLineRenderer();
         }
+
+        /// <summary>
+        /// This method will return the cached path between given start and end nodes.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         private List<LinerendererHandler> _GetPath(TileEntity start, TileEntity end)
         {
             Pair key = _pairPathDict.Keys.ToList().Find(x => (x.firstTile == start.RowColumn && x.secondTile == end.RowColumn) ||
@@ -293,6 +303,14 @@ namespace HyperConnect
 
         }
 
+        /// <summary>
+        /// This method will check if there are any blockers in the given path or not.<br></br>
+        /// if there are blockers then it is not a valid path=>return false.<br></br>
+        /// else<br></br>
+        /// returns true.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private bool _IsPathValid(List<TileEntity> path)
         {
             foreach (TileEntity entity in path)
@@ -329,6 +347,15 @@ namespace HyperConnect
         //    }
         //}
 
+        /// <summary>
+        /// This method is heart of the mechanic
+        /// this will give loop through the neighbours of the given start entity recursively 
+        /// until it finds the end node.(bcz end node should be a neighbour to some node right!!)
+        /// 
+        /// </summary>
+        /// <param name="comingFrom"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
         private void _LoopForDestinationEntity(TileEntity comingFrom, TileEntity start, TileEntity end)
         {
             var neighbours = start.GetMyNeighbours();
@@ -350,6 +377,11 @@ namespace HyperConnect
             }
         }
 
+        /// <summary>
+        /// This method will loop through the parents of the given entity until it reaches top most parent(we can say Root node)
+        /// returns the path from root node to given node.
+        /// </summary>
+        /// <param name="tileEntity"></param>
         private void _BackTraceToTheStartNode(TileEntity tileEntity)
         {
             _pathTrackList.Clear();
@@ -363,89 +395,37 @@ namespace HyperConnect
             MyUtils.Log($"Path Track::: {_pathTrackList.Count}");
         }
 
-        private void _DrawDebugLine()
-        {
-            if (_pathTrackList.Count > 0)
-            {
-                List<Vector2> points = new List<Vector2>();
-                foreach (TileEntity entity in _pathTrackList)
-                    points.Add(entity.transform.localPosition);
-                linerenderer.Points = points.ToArray();
-                linerenderer.SetAllDirty();
-            }
-        }
-        //private List<List<int>> edgesArrayList = new List<List<int>>();
 
-        //// An utility function to do 
-        //// DFS of graph recursively 
-        //// from a given vertex x. 
-        // void DFS(bool[] visitedArray, int x, int y, List<int> stack)
+        //private void _DrawDebugLine()
         //{
-        //    stack.Add(x);
-        //    if (x == y)
+        //    if (_pathTrackList.Count > 0)
         //    {
-
-        //        // print the path and return on 
-        //        // reaching the destination node 
-
-        //        // printPath(stack);
-        //        return;
+        //        List<Vector2> points = new List<Vector2>();
+        //        foreach (TileEntity entity in _pathTrackList)
+        //            points.Add(entity.transform.localPosition);
+        //        linerenderer.Points = points.ToArray();
+        //        linerenderer.SetAllDirty();
         //    }
-        //    visitedArray[x] = true;
-
-        //    // if backtracking is taking place
-
-        //    if (edgesArrayList[x].Count > 0)
-        //    {
-        //        for (int j = 0; j < edgesArrayList[x].Count; j++)
-        //        {
-
-        //            // if the node is not visited 
-        //            if (visitedArray[edgesArrayList[x][j]] == false)
-        //            {
-        //                DFS(visitedArray, edgesArrayList[x][j], y, stack);
-        //            }
-        //        }
-        //    }
-        //    stack.RemoveAt(stack.Count - 1);
         //}
 
-        //// A utility function to initialise 
-        //// visited for the node and call 
-        //// DFS function for a given vertex x. 
-        // void DFSCall(int x, int y, int n,
-        //                    List<int> stack)
-        //{
-
-        //    // visited array 
-        //    bool[] vis = new bool[n + 1];
-        //    System.Array.Fill(vis, false);
-
-        //    // memset(vis, false, sizeof(vis)) 
-
-        //    // DFS function call 
-        //    DFS(vis, x, y, stack);
-        //}
-
-
-
-
-
+        /// <summary>
+        /// This method will reposition the particle system to the given position 
+        /// and plays the particle system.
+        /// </summary>
+        /// <param name="localPose"></param>
         private void _ShowStarParticles(Vector2 localPose)
         {
             _starParticles.transform.localPosition = localPose;
             _starParticles.Play();
         }
-
-
-        private void _GetPathWithNeighbours(TileEntity startEntity, TileEntity dest)
-        {
-
-        }
-
         #endregion Private Methods
 
         #region Callbacks
+        ///In this callback 
+        ///Adds the selected entity into a stack.
+        ///and Invokes Matching logic if the count is equal or greater than MIN_TILES_TO_MATCH value.
+        ///if selected entity is not same as the previous selected enity then removes the previous selected entity 
+        ///and adds new entity as selected entity into the stack.
         private void Callback_On_TileEntity_Selected(TileEntity selectedEntity)
         {
             if (_selectedTileStack.Count > 0)
@@ -456,11 +436,22 @@ namespace HyperConnect
             if (_selectedTileStack.Count >= MIN_TILES_TO_MATCH)
                 _CheckForMatch();
         }
+        //Removes the unseleted entity from the stack
         private void Callback_On_TileEntity_UnSelected(TileEntity unSelectedEntity)
         {
             if (_selectedTileStack.Count > 0)
                 _selectedTileStack.Pop();
         }
         #endregion Callbacks
+    }
+    public class Pair
+    {
+        public Vector2Int firstTile;
+        public Vector2Int secondTile;
+        public Pair(Vector2Int first, Vector2Int second)
+        {
+            firstTile = first;
+            secondTile = second;
+        }
     }
 }
