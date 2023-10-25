@@ -24,21 +24,41 @@ namespace HyperConnect
                 secondTile = second;
             }
         }
-
+        [Header("Prefab References")]
+        [Space(2)]
         [SerializeField] private TileEntity _tileEntityPrefab;
         [SerializeField] private LinerendererHandler _lineRenderer;
+        [Space(5)]
+
+        [Header("Parent References")]
+        [Space(2)]
         [SerializeField] private Transform _boardTransform;
         [SerializeField] private Transform _lineRendrersParents;
+        [Space(5)]
+
         [SerializeField] private CanvasGroup _fadeBgCanvasGroup;
         [SerializeField] private Coffee.UIExtensions.UIParticle _starParticles;
+
         private TileEntity _startEntity;
         private TileEntity _endEntity;
         private Stack<TileEntity> _selectedTileStack;
         private List<TileEntity> _pathTrackList;
-        private TileEntity[,] _spawnedEntities;
-        private Dictionary<Pair, List<LinerendererHandler>> _pairPathDict = new Dictionary<Pair, List<LinerendererHandler>>();
-        //private Dictionary<Pair, LinerendererHandler> _neighbourLinesDict = new Dictionary<Pair, LinerendererHandler>();
 
+
+        ///Replaced 2D array with list for ease of traversal.
+        ///performed linq queries at most of the places 
+        ///bcz the count of the list doesn't go beyond size of the grid(in this case 11x5=55) objects.
+        ///So it is acceptable to perform linq queries on small data sets.
+        private List<TileEntity> _spawnedEntityList = new List<TileEntity>();
+        //private TileEntity[,] _spawnedEntities;
+
+        private Dictionary<Pair, List<LinerendererHandler>> _pairPathDict = new Dictionary<Pair, List<LinerendererHandler>>();
+
+        /// <summary>
+        /// Constant value to check number of tiles to match.
+        /// Same value can be used to verify level data is correct with min. tiles or not.
+        /// But in this prototype project that logic is not handled.
+        /// </summary>
         private const byte MIN_TILES_TO_MATCH = 2;
         #endregion Varibales
 
@@ -69,9 +89,9 @@ namespace HyperConnect
         private IEnumerator _InitLevel()
         {
             _fadeBgCanvasGroup.gameObject.SetActive(true);
-            LevelData leveldata = LevelDataHandler.GetLevelDataByLevelIndex(1);
+            LevelData leveldata = LevelDataHandler.GetLevelDataByLevelIndex(GlobalVariables.HighestUnlockedLevel);
             int[,] indexData = leveldata.indexData;
-            _spawnedEntities = new TileEntity[indexData.GetLength(0), indexData.GetLength(1)];
+            //_spawnedEntities = new TileEntity[indexData.GetLength(0), indexData.GetLength(1)];
             List<Edge> edgeData = leveldata.edgeData;
             for (int i = 0, count = indexData.GetLength(0); i < count; i++)
             {
@@ -81,14 +101,17 @@ namespace HyperConnect
                     entity.name = $"Tile_{i}x{j}";
                     int index = indexData[i, j];
                     entity.Init(index, i, j);
-                    _spawnedEntities[i, j] = entity;
+                    // _spawnedEntities[i, j] = entity;
+                    _spawnedEntityList.Add(entity);
                 }
             }
             yield return new WaitForSeconds(.15f);
             foreach (Edge edge in edgeData)
             {
-                TileEntity startEntity = _spawnedEntities[edge.start.x, edge.start.y];
-                TileEntity endEntity = _spawnedEntities[edge.end.x, edge.end.y];
+                //TileEntity startEntity = _spawnedEntities[edge.start.x, edge.start.y];
+                //TileEntity endEntity = _spawnedEntities[edge.end.x, edge.end.y];
+                TileEntity startEntity = _spawnedEntityList.Find(x => x.RowColumn == edge.start);
+                TileEntity endEntity = _spawnedEntityList.Find(x => x.RowColumn == edge.end);
                 startEntity.AddAsNeighbour(endEntity);
                 endEntity.AddAsNeighbour(startEntity);
                 // _DrawNeighbourLines(startEntity, endEntity);
@@ -107,7 +130,8 @@ namespace HyperConnect
                             if (indexData[i, j] == indexData[k, l] && indexData[i, j] != -1 && !indexTracker.Contains(indexData[i, j]))
                             {
                                 _pathTrackList.Clear();
-                                _FindPath(_spawnedEntities[i, j], _spawnedEntities[k, l]);
+                                //_FindPath(_spawnedEntities[i, j], _spawnedEntities[k, l]);
+                                _FindPath(_spawnedEntityList.Find(x => x.Row == i && x.Column == j), _spawnedEntityList.Find(x => x.Row == k && x.Column == l));
                                 MyUtils.Log($"!!!! :: path count: {_pathTrackList.Count}");
                                 List<LinerendererHandler> renderers = new List<LinerendererHandler>();
                                 for (int m = 0, count4 = _pathTrackList.Count - 1; m < count4; m++)
@@ -127,11 +151,26 @@ namespace HyperConnect
 
             _startEntity = null;
             _endEntity = null;
-
+            GlobalEventHandler.OnNewLevelStarted?.Invoke(GlobalVariables.HighestUnlockedLevel);
             _fadeBgCanvasGroup.DOFade(0, 1.25f).onComplete += () =>
             {
                 _fadeBgCanvasGroup.gameObject.SetActive(false);
             };
+        }
+
+        private void _ClearEntireBoard()
+        {
+            for (int i = 0, count = _boardTransform.childCount; i < count; i++)
+            {
+                Destroy(_boardTransform.GetChild(i).gameObject);
+            }
+            for (int i = 0, count = _lineRendrersParents.childCount; i < count; i++)
+            {
+                Destroy(_lineRendrersParents.GetChild(i).gameObject);
+            }
+            _spawnedEntityList.Clear();
+            _selectedTileStack.Clear();
+            _pairPathDict.Clear();
         }
         // private List<TileEntity> _drawnLineEntities = new List<TileEntity>();
         //private void _DrawNeighbourLines(TileEntity ownerEntity, TileEntity neighbourEntity)
@@ -184,6 +223,9 @@ namespace HyperConnect
             int midPoint = (0 + count - 1) / 2;
             int indexOfStart = _pathTrackList.IndexOf(_startEntity);//count-1
             int indexOfEnd = _pathTrackList.IndexOf(_endEntity);//0
+            _spawnedEntityList.Remove(_startEntity);
+            _spawnedEntityList.Remove(_endEntity);
+            _CheckForLevelComplete();
             if (_pathTrackList.Count == 2)
             {
                 Vector2 dir = (_pathTrackList[1].transform.localPosition + _pathTrackList[0].transform.localPosition) / 2;
@@ -212,9 +254,23 @@ namespace HyperConnect
                  _ShowStarParticles(_pathTrackList[midPoint].transform.localPosition);
                  _FadeOutPath(path);
              });
-
         }
-
+        private void _CheckForLevelComplete()
+        {
+            if (!_spawnedEntityList.Any(x => x.IsOccupied))
+            {
+                //levelComplete
+                MyUtils.DelayedCallback(1f, () =>
+                {
+                    _fadeBgCanvasGroup.DOFade(1, .45f).onComplete += () =>
+                    {
+                        _ClearEntireBoard();
+                        GlobalVariables.HighestUnlockedLevel++;
+                        StartCoroutine(_InitLevel());
+                    };
+                });
+            }
+        }
         private void _ChangePathColor(List<LinerendererHandler> path)
         {
             foreach (LinerendererHandler line in path)

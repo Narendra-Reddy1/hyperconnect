@@ -7,5 +7,7 @@ namespace HyperConnect
     {
         public static Action<TileEntity> OnTileEntitySelected = default;
         public static Action<TileEntity> OnTileEntityUnSelected = default;
+
+        public static Action<int> OnNewLevelStarted = default;
     }
 }
