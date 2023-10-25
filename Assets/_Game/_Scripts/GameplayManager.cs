@@ -30,7 +30,7 @@ namespace HyperConnect
         [SerializeField] private Transform _boardTransform;
         [SerializeField] private Transform _lineRendrersParents;
         [SerializeField] private CanvasGroup _fadeBgCanvasGroup;
-
+        [SerializeField] private Coffee.UIExtensions.UIParticle _starParticles;
         private TileEntity _startEntity;
         private TileEntity _endEntity;
         private Stack<TileEntity> _selectedTileStack;
@@ -128,7 +128,7 @@ namespace HyperConnect
             _startEntity = null;
             _endEntity = null;
 
-            _fadeBgCanvasGroup.DOFade(0, 1.75f).onComplete += () =>
+            _fadeBgCanvasGroup.DOFade(0, 1.25f).onComplete += () =>
             {
                 _fadeBgCanvasGroup.gameObject.SetActive(false);
             };
@@ -188,6 +188,7 @@ namespace HyperConnect
             {
                 Vector2 dir = (_pathTrackList[1].transform.localPosition + _pathTrackList[0].transform.localPosition) / 2;
                 _pathTrackList[0].TweenToGivenPose(dir);
+                _ShowStarParticles(dir);
                 List<LinerendererHandler> path1 = _GetPath(_startEntity, _endEntity);
                 _pathTrackList[1].TweenToGivenPose(dir, () =>
                 {
@@ -208,6 +209,7 @@ namespace HyperConnect
             _startEntity.TweenToThePath(waypoints.ToArray());
             _endEntity.TweenToThePath(waypoints2.ToArray(), () =>
              {
+                 _ShowStarParticles(_pathTrackList[midPoint].transform.localPosition);
                  _FadeOutPath(path);
              });
 
@@ -373,7 +375,11 @@ namespace HyperConnect
 
 
 
-
+        private void _ShowStarParticles(Vector2 localPose)
+        {
+            _starParticles.transform.localPosition = localPose;
+            _starParticles.Play();
+        }
 
 
         private void _GetPathWithNeighbours(TileEntity startEntity, TileEntity dest)
@@ -390,7 +396,7 @@ namespace HyperConnect
                 if (selectedEntity.ID != _selectedTileStack.Peek().ID)
                     _selectedTileStack.Pop().UnSelectThisEntity();
             _selectedTileStack.Push(selectedEntity);
-
+            _ShowStarParticles(selectedEntity.transform.localPosition);
             if (_selectedTileStack.Count >= MIN_TILES_TO_MATCH)
                 _CheckForMatch();
         }
